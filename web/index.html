@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SprintZero Analyzer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.plot.ly/plotly-basic-2.35.2.min.js"></script>
+</head>
+<body>
+  <!-- Header -->
+  <header id="header">
+    <h1>SprintZero Analyzer</h1>
+    <p>Bidirectional sprint end detection</p>
+  </header>
+
+  <!-- Upload zone -->
+  <div id="upload-zone">
+    <div class="upload-content">
+      <div class="upload-icon">&#8615;</div>
+      <p>Drop a <strong>.sprintzero</strong> file here or click to browse</p>
+    </div>
+    <input type="file" id="file-input" accept=".sprintzero" hidden>
+  </div>
+
+  <!-- File info badge (shown after load) -->
+  <div id="file-info">
+    <span id="file-name"></span>
+    <span class="change-hint">click to change</span>
+  </div>
+
+  <!-- Results table -->
+  <div id="table-container">
+    <table id="results-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Date</th>
+          <th>Dist</th>
+          <th>Fwd (s)</th>
+          <th>Bwd (s)</th>
+          <th>Gap</th>
+          <th>Decision</th>
+          <th>Final (s)</th>
+        </tr>
+      </thead>
+      <tbody id="results-body"></tbody>
+    </table>
+  </div>
+
+  <!-- Sprint detail section (hidden until row selected) -->
+  <div id="detail-section">
+    <!-- Hero card -->
+    <div id="hero-card" class="card"></div>
+
+    <!-- Metrics card -->
+    <div id="metrics-card" class="card"></div>
+
+    <!-- Splits card -->
+    <div id="splits-card" class="card"></div>
+
+    <!-- Acceleration + Detection chart -->
+    <div id="accel-chart" class="chart-box"></div>
+
+    <!-- Gyroscope chart -->
+    <div id="gyro-chart" class="chart-box"></div>
+  </div>
+
+  <!-- Status bar -->
+  <div id="status">Drop a .sprintzero file to begin</div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
