@@ -1,0 +1,14 @@
+[project]
+name = "sprintzero-analyzer"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "textual>=0.85",
+    "plotext>=5.2",
+    "textual-plotext>=1.0",
+    "numpy",
+    "pandas",
+]
+
+[project.scripts]
+sprintzero-analyzer = "app:main"
