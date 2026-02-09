@@ -3,3 +3,12 @@ __pycache__/
 .venv/
 .DS_Store
 *.sprintzero
+
+# Rust
+rust/target/
+rust/pkg/
+
+# Frontend
+frontend/node_modules/
+frontend/build/
+frontend/.svelte-kit/

@@ -99,7 +99,25 @@ SprintZeroAnalyzer/
 └── .python-version    # Python 3.11
 ```
 
-## Dependencies
+## Web App (Planned)
+
+Static web app deployed on Netlify. All processing runs client-side — no backend required.
+
+### Technology Stack
+
+| Layer | Technology | Why |
+|-------|-----------|-----|
+| **Compute** | Rust → WASM (`wasm-pack`) | Kalman filters, piecewise fits, signal processing at near-native speed |
+| **Frontend** | TypeScript + React or Svelte | Component model for charts, insights, session views |
+| **Charts** | Plotly.js or D3 | Acceleration curves, velocity profiles, arm envelope, split times |
+| **File parsing** | Rust (WASM) | Parse `.sprintzero` / `.curvepack` binary format, decompress zlib |
+| **Deployment** | Netlify static | Zero backend, everything client-side |
+
+### Why Rust → WASM
+
+The SprintZero signal processing pipeline includes Kalman filter + RTS backward smoother, 3-phase continuous piecewise linear fit (matrix solves), prominence-based peak detection on 100Hz data, and zlib-compressed binary format parsing (`CompactCurvePayload`). This is the workload where WASM provides meaningful performance gains over plain JS, and Rust's type safety prevents subtle numerical bugs in the signal processing code.
+
+## Dependencies (TUI)
 
 Managed with [uv](https://docs.astral.sh/uv/). Install and lock with `uv sync`.
 
