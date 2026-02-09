@@ -3,9 +3,10 @@
 
 	interface Props {
 		result: SprintAnalysisResult;
+		compact?: boolean;
 	}
 
-	let { result }: Props = $props();
+	let { result, compact = false }: Props = $props();
 
 	function fmt(seconds: number): string {
 		const total = Math.floor(seconds);
@@ -30,20 +31,34 @@
 	const gpsBadge = $derived(gpsLabel(result.meta.gpsStatus));
 </script>
 
-<div class="card hero-card">
+<div class:card={!compact} class="hero-card" class:compact>
 	<div class="hero-time">{fmt(result.finalDur)}</div>
 	<div class="hero-distance">{result.distance}m</div>
 	<div class="hero-badges">
 		{#if result.meta.isFalseStart}
 			<span class="false-start-badge">FALSE START</span>
 		{/if}
-		{#if gpsBadge}
-			<span class="hero-badge" style:color={gpsBadge.color}>{gpsBadge.text}</span>
-		{/if}
-		{#if result.piecewiseFit}
-			<span class="hero-badge" style:color="#FF9F0A">
-				Fit: {fmt(result.piecewiseFit.bp2)} ({result.piecewiseFit.confidence})
-			</span>
+		{#if !compact}
+			{#if gpsBadge}
+				<span class="hero-badge" style:color={gpsBadge.color}>{gpsBadge.text}</span>
+			{/if}
+			{#if result.piecewiseFit}
+				<span class="hero-badge" style:color="#FF9F0A">
+					Fit: {fmt(result.piecewiseFit.bp2)} ({result.piecewiseFit.confidence})
+				</span>
+			{/if}
 		{/if}
 	</div>
 </div>
+
+<style>
+	.hero-card.compact .hero-time {
+		font-size: 1.8rem;
+	}
+	.hero-card.compact .hero-distance {
+		font-size: 0.95rem;
+	}
+	.hero-card.compact {
+		padding: 0.75rem 0.5rem;
+	}
+</style>

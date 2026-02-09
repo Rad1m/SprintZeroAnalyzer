@@ -2,6 +2,11 @@ import type { SprintAnalysisResult, PiecewiseFitResult } from '../types.js';
 
 declare const Plotly: any;
 
+export interface AccelChartOptions {
+	compact?: boolean;
+	showFit?: boolean;
+}
+
 const BASE_LAYOUT = {
 	paper_bgcolor: '#0d1117',
 	plot_bgcolor: '#161b22',
@@ -19,6 +24,14 @@ const BASE_LAYOUT = {
 		color: '#8b949e'
 	},
 	hovermode: 'x unified' as const
+};
+
+const COMPACT_LAYOUT = {
+	...BASE_LAYOUT,
+	font: { ...BASE_LAYOUT.font, size: 9 },
+	margin: { t: 8, r: 8, b: 20, l: 30 },
+	xaxis: { ...BASE_LAYOUT.xaxis, title: undefined },
+	yaxis: { ...BASE_LAYOUT.yaxis, title: undefined },
 };
 
 const PLOTLY_CONFIG = {
@@ -45,7 +58,9 @@ function buildFitTrace(fit: PiecewiseFitResult, tMax: number): { x: number[]; y:
 	return { x, y };
 }
 
-export function renderAccelChart(el: HTMLElement, result: SprintAnalysisResult, showFit = true): void {
+export function renderAccelChart(el: HTMLElement, result: SprintAnalysisResult, options?: AccelChartOptions): void {
+	const compact = options?.compact ?? false;
+	const showFit = options?.showFit ?? true;
 	const pd = result.plotData;
 
 	const rawTrace = {
@@ -151,17 +166,29 @@ export function renderAccelChart(el: HTMLElement, result: SprintAnalysisResult, 
 		);
 	}
 
-	const title = `Acceleration \u2014 ${result.distance}m \u2014 Final: ${result.finalDur.toFixed(2)}s`;
+	const base = compact ? COMPACT_LAYOUT : BASE_LAYOUT;
 
-	const layout = {
-		...BASE_LAYOUT,
-		title: { text: title, font: { color: '#f0f0f0', size: 14 } },
-		yaxis: { ...BASE_LAYOUT.yaxis, title: 'Accel (g)' },
-		showlegend: true,
-		legend: { x: 1, xanchor: 'right', y: 1, bgcolor: 'rgba(0,0,0,0)', font: { size: 10 } },
+	const layout: any = {
+		...base,
+		yaxis: { ...base.yaxis },
 		shapes,
-		annotations
 	};
 
-	Plotly.react(el, traces, layout, PLOTLY_CONFIG);
+	if (compact) {
+		layout.showlegend = false;
+		layout.annotations = [];
+	} else {
+		const title = `Acceleration \u2014 ${result.distance}m \u2014 Final: ${result.finalDur.toFixed(2)}s`;
+		layout.title = { text: title, font: { color: '#f0f0f0', size: 14 } };
+		layout.yaxis.title = 'Accel (g)';
+		layout.showlegend = true;
+		layout.legend = { x: 1, xanchor: 'right', y: 1, bgcolor: 'rgba(0,0,0,0)', font: { size: 10 } };
+		layout.annotations = annotations;
+	}
+
+	const config = compact
+		? { responsive: true, displayModeBar: false }
+		: PLOTLY_CONFIG;
+
+	Plotly.react(el, traces, layout, config);
 }

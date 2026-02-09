@@ -4,9 +4,10 @@
 	interface Props {
 		splits: SplitTime[];
 		computedSplits?: SplitTime[] | null;
+		compact?: boolean;
 	}
 
-	let { splits, computedSplits = null }: Props = $props();
+	let { splits, computedSplits = null, compact = false }: Props = $props();
 
 	// Prefer pre-computed (from .sprintzero meta), fall back to IMU-computed
 	const activeSplits = $derived(splits.length > 0 ? splits : (computedSplits ?? []));
@@ -14,8 +15,10 @@
 </script>
 
 {#if activeSplits.length > 0}
-	<div class="card">
-		<h3 class="card-title">Splits{isComputed ? ' (IMU)' : ''}</h3>
+	<div class:card={!compact} class:compact>
+		{#if !compact}
+			<h3 class="card-title">Splits{isComputed ? ' (IMU)' : ''}</h3>
+		{/if}
 		<div class="splits-scroll">
 			<table class="splits-table">
 				<thead>
@@ -41,3 +44,23 @@
 		</div>
 	</div>
 {/if}
+
+<style>
+	.compact .splits-table {
+		font-size: 0.7rem;
+	}
+	.compact .splits-table th,
+	.compact .splits-table td {
+		padding: 0.2rem 0.35rem;
+	}
+	.compact .splits-scroll {
+		overflow: auto;
+	}
+	.compact {
+		padding: 0.5rem;
+		overflow: hidden;
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+	}
+</style>

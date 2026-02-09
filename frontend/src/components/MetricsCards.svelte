@@ -4,9 +4,10 @@
 	interface Props {
 		meta: SprintMeta;
 		velocityData?: VelocityData | null;
+		compact?: boolean;
 	}
 
-	let { meta, velocityData = null }: Props = $props();
+	let { meta, velocityData = null, compact = false }: Props = $props();
 
 	function fmtFixed(val: number | null, digits = 2): string {
 		if (val == null) return '--';
@@ -85,24 +86,38 @@
 
 		return r;
 	});
+
+	const displayRows = $derived(compact ? rows.slice(0, 5) : rows);
 </script>
 
 {#if rows.length > 0}
-	<div class="card metrics-card">
-		{#each rows as row, i}
+	<div class:card={!compact} class="metrics-card" class:compact>
+		{#each displayRows as row, i}
 			{#if i > 0}
 				<div class="metric-divider"></div>
 			{/if}
 			<div class="metric-row">
 				<span class="metric-label">{row.label}</span>
 				<span class="metric-value" style:color={row.color}>{row.value}</span>
-				{#if row.extra}
+				{#if !compact && row.extra}
 					<span class="metric-extra">{row.extra}</span>
 				{/if}
-				{#if row.badge}
+				{#if !compact && row.badge}
 					<span class="metric-badge" style:background={row.badge.color}>{row.badge.label}</span>
 				{/if}
 			</div>
 		{/each}
 	</div>
 {/if}
+
+<style>
+	.metrics-card.compact .metric-label {
+		font-size: 0.75rem;
+	}
+	.metrics-card.compact .metric-value {
+		font-size: 0.85rem;
+	}
+	.metrics-card.compact .metric-row {
+		padding: 0.3rem 0;
+	}
+</style>

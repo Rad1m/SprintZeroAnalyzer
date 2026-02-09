@@ -69,7 +69,9 @@
 />
 
 {#if getSelectedResult()}
-	<SprintDetail result={getSelectedResult()!} />
+	<div class="dashboard-wrapper">
+		<SprintDetail result={getSelectedResult()!} />
+	</div>
 {/if}
 
 <div class="status-bar">{appState.status}</div>

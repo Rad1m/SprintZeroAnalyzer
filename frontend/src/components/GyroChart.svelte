@@ -4,17 +4,32 @@
 
 	interface Props {
 		result: SprintAnalysisResult;
+		compact?: boolean;
 	}
 
-	let { result }: Props = $props();
+	let { result, compact = false }: Props = $props();
 
 	let el: HTMLElement;
 
 	$effect(() => {
 		if (el && result) {
-			renderGyroChart(el, result);
+			renderGyroChart(el, result, { compact });
 		}
 	});
 </script>
 
-<div class="chart-box" bind:this={el}></div>
+<div class="chart-container" class:compact bind:this={el}></div>
+
+<style>
+	.chart-container {
+		width: 100%;
+		height: 100%;
+	}
+	.chart-container.compact {
+		position: absolute;
+		inset: 0;
+	}
+	.chart-container:not(.compact) {
+		min-height: 350px;
+	}
+</style>

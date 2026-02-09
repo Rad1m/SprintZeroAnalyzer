@@ -2,6 +2,10 @@ import type { SprintAnalysisResult } from '../types.js';
 
 declare const Plotly: any;
 
+export interface GyroChartOptions {
+	compact?: boolean;
+}
+
 const BASE_LAYOUT = {
 	paper_bgcolor: '#0d1117',
 	plot_bgcolor: '#161b22',
@@ -21,13 +25,22 @@ const BASE_LAYOUT = {
 	hovermode: 'x unified' as const
 };
 
+const COMPACT_LAYOUT = {
+	...BASE_LAYOUT,
+	font: { ...BASE_LAYOUT.font, size: 9 },
+	margin: { t: 8, r: 8, b: 20, l: 30 },
+	xaxis: { ...BASE_LAYOUT.xaxis, title: undefined },
+	yaxis: { ...BASE_LAYOUT.yaxis, title: undefined },
+};
+
 const PLOTLY_CONFIG = {
 	responsive: true,
 	displayModeBar: true,
 	modeBarButtonsToRemove: ['lasso2d', 'select2d']
 };
 
-export function renderGyroChart(el: HTMLElement, result: SprintAnalysisResult): void {
+export function renderGyroChart(el: HTMLElement, result: SprintAnalysisResult, options?: GyroChartOptions): void {
+	const compact = options?.compact ?? false;
 	const gd = result.gyroData;
 	if (!gd) {
 		Plotly.purge(el);
@@ -78,17 +91,29 @@ export function renderGyroChart(el: HTMLElement, result: SprintAnalysisResult): 
 		}
 	];
 
-	const layout = {
-		...BASE_LAYOUT,
-		title: {
-			text: `Gyroscope \u2014 dominant axis: ${dominant.toUpperCase()}`,
-			font: { color: '#f0f0f0', size: 14 }
-		},
-		yaxis: { ...BASE_LAYOUT.yaxis, title: 'Rotation (rad/s)' },
-		showlegend: true,
-		legend: { x: 1, xanchor: 'right', y: 1, bgcolor: 'rgba(0,0,0,0)', font: { size: 10 } },
+	const base = compact ? COMPACT_LAYOUT : BASE_LAYOUT;
+
+	const layout: any = {
+		...base,
+		yaxis: { ...base.yaxis },
 		shapes
 	};
 
-	Plotly.react(el, traces, layout, PLOTLY_CONFIG);
+	if (compact) {
+		layout.showlegend = false;
+	} else {
+		layout.title = {
+			text: `Gyroscope \u2014 dominant axis: ${dominant.toUpperCase()}`,
+			font: { color: '#f0f0f0', size: 14 }
+		};
+		layout.yaxis.title = 'Rotation (rad/s)';
+		layout.showlegend = true;
+		layout.legend = { x: 1, xanchor: 'right', y: 1, bgcolor: 'rgba(0,0,0,0)', font: { size: 10 } };
+	}
+
+	const config = compact
+		? { responsive: true, displayModeBar: false }
+		: PLOTLY_CONFIG;
+
+	Plotly.react(el, traces, layout, config);
 }

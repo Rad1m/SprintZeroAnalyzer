@@ -2,6 +2,10 @@ import type { SprintAnalysisResult } from '../types.js';
 
 declare const Plotly: any;
 
+export interface VelocityChartOptions {
+	compact?: boolean;
+}
+
 const BASE_LAYOUT = {
 	paper_bgcolor: '#0d1117',
 	plot_bgcolor: '#161b22',
@@ -21,13 +25,22 @@ const BASE_LAYOUT = {
 	hovermode: 'x unified' as const
 };
 
+const COMPACT_LAYOUT = {
+	...BASE_LAYOUT,
+	font: { ...BASE_LAYOUT.font, size: 9 },
+	margin: { t: 8, r: 8, b: 20, l: 30 },
+	xaxis: { ...BASE_LAYOUT.xaxis, title: undefined },
+	yaxis: { ...BASE_LAYOUT.yaxis, title: undefined },
+};
+
 const PLOTLY_CONFIG = {
 	responsive: true,
 	displayModeBar: true,
 	modeBarButtonsToRemove: ['lasso2d', 'select2d']
 };
 
-export function renderVelocityChart(el: HTMLElement, result: SprintAnalysisResult): void {
+export function renderVelocityChart(el: HTMLElement, result: SprintAnalysisResult, options?: VelocityChartOptions): void {
+	const compact = options?.compact ?? false;
 	const vd = result.velocityData;
 	if (!vd) {
 		Plotly.purge(el);
@@ -115,18 +128,15 @@ export function renderVelocityChart(el: HTMLElement, result: SprintAnalysisResul
 		}
 	];
 
-	const title = `Velocity \u2014 Vmax: ${vd.maxVelocity.toFixed(1)} m/s @ ${vd.timeToMaxVelocity.toFixed(2)}s \u2014 Scale: ${vd.scaleFactor.toFixed(2)}`;
+	const base = compact ? COMPACT_LAYOUT : BASE_LAYOUT;
 
-	const layout = {
-		...BASE_LAYOUT,
-		title: { text: title, font: { color: '#f0f0f0', size: 14 } },
+	const layout: any = {
+		...base,
 		yaxis: {
-			...BASE_LAYOUT.yaxis,
-			title: 'Velocity (m/s)',
+			...base.yaxis,
 			rangemode: 'tozero'
 		},
 		yaxis2: {
-			title: 'Distance (m)',
 			overlaying: 'y',
 			side: 'right',
 			gridcolor: 'rgba(0,0,0,0)',
@@ -134,11 +144,26 @@ export function renderVelocityChart(el: HTMLElement, result: SprintAnalysisResul
 			color: '#39FF14',
 			rangemode: 'tozero'
 		},
-		showlegend: true,
-		legend: { x: 0, xanchor: 'left', y: 1, bgcolor: 'rgba(0,0,0,0)', font: { size: 10 } },
 		shapes,
-		annotations
 	};
 
-	Plotly.react(el, traces, layout, PLOTLY_CONFIG);
+	if (compact) {
+		layout.showlegend = false;
+		layout.annotations = [];
+		layout.yaxis2.title = undefined;
+	} else {
+		const title = `Velocity \u2014 Vmax: ${vd.maxVelocity.toFixed(1)} m/s @ ${vd.timeToMaxVelocity.toFixed(2)}s \u2014 Scale: ${vd.scaleFactor.toFixed(2)}`;
+		layout.title = { text: title, font: { color: '#f0f0f0', size: 14 } };
+		layout.yaxis.title = 'Velocity (m/s)';
+		layout.yaxis2.title = 'Distance (m)';
+		layout.showlegend = true;
+		layout.legend = { x: 0, xanchor: 'left', y: 1, bgcolor: 'rgba(0,0,0,0)', font: { size: 10 } };
+		layout.annotations = annotations;
+	}
+
+	const config = compact
+		? { responsive: true, displayModeBar: false }
+		: PLOTLY_CONFIG;
+
+	Plotly.react(el, traces, layout, config);
 }
