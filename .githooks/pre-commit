@@ -1,0 +1,46 @@
+#!/bin/bash
+# Pre-commit hook for SprintZeroAnalyzer
+# Scans staged files for leaked secrets
+
+set -e
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m'
+
+echo "🔑 Scanning for leaked secrets..."
+
+SECRETS_FOUND=0
+
+# Google/Firebase API keys (AIzaSy...)
+if git diff --cached -U0 --diff-filter=ACM | grep -qE '^\+.*AIzaSy[A-Za-z0-9_-]{33}'; then
+    echo -e "${RED}❌ Found Google API key in staged changes!${NC}"
+    git diff --cached -U0 --diff-filter=ACM | grep -nE '^\+.*AIzaSy[A-Za-z0-9_-]{33}'
+    SECRETS_FOUND=1
+fi
+
+# Private keys
+if git diff --cached -U0 --diff-filter=ACM | grep -qE '^\+.*BEGIN (PRIVATE|RSA|EC) KEY'; then
+    echo -e "${RED}❌ Found private key in staged changes!${NC}"
+    SECRETS_FOUND=1
+fi
+
+# Service account JSON being added
+if git diff --cached --name-only --diff-filter=A | grep -q "service-account"; then
+    echo -e "${RED}❌ Service account keys should not be committed!${NC}"
+    SECRETS_FOUND=1
+fi
+
+# .env files being added
+if git diff --cached --name-only --diff-filter=A | grep -qE '\.env$'; then
+    echo -e "${RED}❌ .env files should not be committed! Use .env.example for templates.${NC}"
+    SECRETS_FOUND=1
+fi
+
+if [ $SECRETS_FOUND -eq 1 ]; then
+    echo -e "${RED}❌ Secrets check FAILED — commit blocked.${NC}"
+    exit 1
+else
+    echo -e "${GREEN}✅ No secrets detected${NC}"
+    exit 0
+fi
