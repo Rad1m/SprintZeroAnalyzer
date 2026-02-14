@@ -13,6 +13,8 @@ export const appState = $state({
 	status: 'Drop a .sprintzero file to begin',
 	/** Whether WASM is initialized */
 	wasmReady: false,
+	/** Whether a Firestore load is in progress */
+	isLoading: false,
 });
 
 /** The currently selected sprint result */
