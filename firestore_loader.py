@@ -1,5 +1,5 @@
 """
-Firestore data loader for SprintZero Analyzer.
+Firestore data loader for Falcata Analyzer.
 
 Fetches sprint sessions from the `debug_sessions` Firestore collection
 and decodes CompactCurvePayload binary blobs into acceleration/gyroscope DataFrames.
@@ -18,7 +18,7 @@ import pandas as pd
 from google.cloud import firestore
 
 # Path to shared secrets (sibling repo)
-_XCCONFIG_PATH = Path(__file__).parent / "../SprintZeroProject/Falcata/Falcata/Secrets.xcconfig"
+_XCCONFIG_PATH = Path(__file__).parent / "../FalcataProject/Falcata/Falcata/Secrets.xcconfig"
 
 
 def _parse_xcconfig(path: Path) -> dict[str, str]:

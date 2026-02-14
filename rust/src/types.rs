@@ -30,7 +30,7 @@ pub struct ParsedSprint {
     pub meta: SprintMeta,
 }
 
-/// Pre-computed metadata from .sprintzero file
+/// Pre-computed metadata from .falcata file
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SprintMeta {

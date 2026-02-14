@@ -1,14 +1,14 @@
-# SprintZero Analyzer
+# Falcata Analyzer
 
 Terminal UI for analyzing sprint end times from Apple Watch sensor data using bidirectional detection.
 
 ```
 ┌──────────────────────────────────────────────────────────┐
-│  SprintZero Analyzer                            (Header) │
+│  Falcata Analyzer                               (Header) │
 ├────────────────┬─────────────────────────────────────────┤
 │                │                                         │
 │  File Browser  │  Results DataTable                      │
-│  (.sprintzero  │  #  Date  Dist  Fwd  Bwd  Gap  Final   │
+│  (.falcata     │  #  Date  Dist  Fwd  Bwd  Gap  Final   │
 │   files)       │                                         │
 │                ├─────────────────────────────────────────┤
 │                │                                         │
@@ -23,15 +23,15 @@ Terminal UI for analyzing sprint end times from Apple Watch sensor data using bi
 ## Quick Start
 
 ```bash
-cd /Users/radim/Programming/SprintZeroAnalyzer
+cd /Users/radim/Programming/FalcataAnalyzer
 uv run python app.py
 ```
 
-Navigate to a `.sprintzero` backup file in the left panel. Select it to run detection. Click a row in the results table to view the acceleration plot for that sprint.
+Navigate to a `.falcata` backup file in the left panel. Select it to run detection. Click a row in the results table to view the acceleration plot for that sprint.
 
 ## How It Works
 
-The analyzer reads `.sprintzero` backup files exported from the SprintZero iOS app. Each file contains session data with embedded accelerometer and gyroscope curves (base64-encoded JSON).
+The analyzer reads `.falcata` backup files exported from the Falcata iOS app. Each file contains session data with embedded accelerometer and gyroscope curves (base64-encoded JSON).
 
 ### Bidirectional Detection
 
@@ -92,7 +92,7 @@ The terminal chart shows the acceleration rolling mean over time for the selecte
 ## Project Structure
 
 ```
-SprintZeroAnalyzer/
+FalcataAnalyzer/
 ├── pyproject.toml     # Dependencies and project metadata
 ├── app.py             # Textual TUI application
 ├── detection.py       # Bidirectional sprint end detection logic
@@ -110,12 +110,12 @@ Static web app deployed on Netlify. All processing runs client-side — no backe
 | **Compute** | Rust → WASM (`wasm-pack`) | Kalman filters, piecewise fits, signal processing at near-native speed |
 | **Frontend** | TypeScript + React or Svelte | Component model for charts, insights, session views |
 | **Charts** | Plotly.js or D3 | Acceleration curves, velocity profiles, arm envelope, split times |
-| **File parsing** | Rust (WASM) | Parse `.sprintzero` / `.curvepack` binary format, decompress zlib |
+| **File parsing** | Rust (WASM) | Parse `.falcata` / `.curvepack` binary format, decompress zlib |
 | **Deployment** | Netlify static | Zero backend, everything client-side |
 
 ### Why Rust → WASM
 
-The SprintZero signal processing pipeline includes Kalman filter + RTS backward smoother, 3-phase continuous piecewise linear fit (matrix solves), prominence-based peak detection on 100Hz data, and zlib-compressed binary format parsing (`CompactCurvePayload`). This is the workload where WASM provides meaningful performance gains over plain JS, and Rust's type safety prevents subtle numerical bugs in the signal processing code.
+The Falcata signal processing pipeline includes Kalman filter + RTS backward smoother, 3-phase continuous piecewise linear fit (matrix solves), prominence-based peak detection on 100Hz data, and zlib-compressed binary format parsing (`CompactCurvePayload`). This is the workload where WASM provides meaningful performance gains over plain JS, and Rust's type safety prevents subtle numerical bugs in the signal processing code.
 
 ## Dependencies (TUI)
 

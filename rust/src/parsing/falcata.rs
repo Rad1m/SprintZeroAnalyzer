@@ -3,9 +3,9 @@ use base64::engine::general_purpose::STANDARD;
 use serde::Deserialize;
 use crate::types::{AccelerationSample, GyroscopeSample, ParsedSprint, SplitTime, SprintMeta};
 
-/// Top-level .sprintzero JSON structure
+/// Top-level .falcata JSON structure
 #[derive(Deserialize)]
-struct SprintZeroFile {
+struct FalcataFile {
     sessions: Vec<Session>,
 }
 
@@ -93,8 +93,8 @@ fn decode_splits(encoded: &str) -> Vec<SplitTime> {
 }
 
 pub fn parse(json_str: &str) -> Result<Vec<ParsedSprint>, String> {
-    let file: SprintZeroFile = serde_json::from_str(json_str)
-        .map_err(|e| format!("Invalid .sprintzero JSON: {e}"))?;
+    let file: FalcataFile = serde_json::from_str(json_str)
+        .map_err(|e| format!("Invalid .falcata JSON: {e}"))?;
 
     let mut results = Vec::new();
     let mut index = 0usize;

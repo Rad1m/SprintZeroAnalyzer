@@ -103,7 +103,7 @@ function init() {
     fileInput.click();
   });
 
-  setStatus('Drop a .sprintzero file to begin');
+  setStatus('Drop a .falcata file to begin');
 }
 
 document.addEventListener('DOMContentLoaded', init);

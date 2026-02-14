@@ -9,13 +9,13 @@ mod biomechanics;
 // Phase 0: Verify WASM loads correctly
 #[wasm_bindgen]
 pub fn ping() -> String {
-    "sprintzero-wasm ready".to_string()
+    "falcata-wasm ready".to_string()
 }
 
-// Phase 1: Parse .sprintzero file
+// Phase 1: Parse .falcata file
 #[wasm_bindgen]
-pub fn parse_sprintzero(json_str: &str) -> Result<JsValue, JsError> {
-    let sprints = parsing::sprintzero::parse(json_str)
+pub fn parse_falcata(json_str: &str) -> Result<JsValue, JsError> {
+    let sprints = parsing::falcata::parse(json_str)
         .map_err(|e| JsError::new(&e.to_string()))?;
     serde_wasm_bindgen::to_value(&sprints)
         .map_err(|e| JsError::new(&e.to_string()))
@@ -35,7 +35,7 @@ pub fn analyze_sprint(sprint_json: &str) -> Result<JsValue, JsError> {
 // Combined: parse file + analyze all sprints in one call
 #[wasm_bindgen]
 pub fn parse_and_analyze(json_str: &str) -> Result<JsValue, JsError> {
-    let sprints = parsing::sprintzero::parse(json_str)
+    let sprints = parsing::falcata::parse(json_str)
         .map_err(|e| JsError::new(&e.to_string()))?;
 
     let mut results = Vec::new();

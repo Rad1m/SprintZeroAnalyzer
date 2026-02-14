@@ -1,5 +1,5 @@
 [project]
-name = "sprintzero-analyzer"
+name = "falcata-analyzer"
 version = "0.1.0"
 requires-python = ">=3.11"
 dependencies = [
@@ -9,7 +9,9 @@ dependencies = [
     "numpy",
     "pandas",
     "google-cloud-firestore",
+    "matplotlib",
+    "ipykernel",
 ]
 
 [project.scripts]
-sprintzero-analyzer = "app:main"
+falcata-analyzer = "app:main"

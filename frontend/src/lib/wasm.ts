@@ -1,9 +1,9 @@
 import init, {
 	ping as wasmPing,
-	parse_sprintzero as wasmParse,
+	parse_falcata as wasmParse,
 	analyze_sprint as wasmAnalyze,
 	parse_and_analyze as wasmParseAndAnalyze
-} from 'sprintzero-wasm';
+} from 'falcata-wasm';
 import type { SprintAnalysisResult } from './types.js';
 
 let initialized = false;
@@ -18,7 +18,7 @@ export function ping(): string {
 	return wasmPing();
 }
 
-export function parseSprintzero(jsonStr: string): unknown {
+export function parseFalcata(jsonStr: string): unknown {
 	return wasmParse(jsonStr);
 }
 

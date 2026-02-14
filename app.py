@@ -1,4 +1,4 @@
-"""SprintZero Analyzer — Terminal UI for bidirectional sprint end detection."""
+"""Falcata Analyzer — Terminal UI for bidirectional sprint end detection."""
 
 import asyncio
 import logging
@@ -21,17 +21,17 @@ from textual_plotext import PlotextPlot
 from detection import analyze_file, analyze_firestore_sessions
 
 
-class SprintZeroTree(DirectoryTree):
-    """Directory tree filtered to .sprintzero files."""
+class FalcataTree(DirectoryTree):
+    """Directory tree filtered to .falcata files."""
 
     def filter_paths(self, paths):
         return [
             p for p in paths
-            if p.is_dir() or p.suffix == '.sprintzero'
+            if p.is_dir() or p.suffix == '.falcata'
         ]
 
 
-class SprintZeroAnalyzer(App):
+class FalcataAnalyzer(App):
     CSS = """
     Screen {
         layout: horizontal;
@@ -69,7 +69,7 @@ class SprintZeroAnalyzer(App):
         Binding("f", "fetch_firestore", "Firestore", priority=True),
     ]
 
-    TITLE = "SprintZero Analyzer"
+    TITLE = "Falcata Analyzer"
 
     def __init__(self):
         super().__init__()
@@ -79,14 +79,14 @@ class SprintZeroAnalyzer(App):
         yield Header()
         with Horizontal():
             with Vertical(id="sidebar"):
-                yield SprintZeroTree(
+                yield FalcataTree(
                     Path("/Users/radim/Programming/SprintZeroProject/DeviceData"),
                     id="tree",
                 )
             with Vertical(id="main"):
                 yield DataTable(id="results-table")
                 yield PlotextPlot(id="plot")
-        yield Static("Select a .sprintzero file or press [bold]f[/bold] for Firestore", id="status")
+        yield Static("Select a .falcata file or press [bold]f[/bold] for Firestore", id="status")
         yield Footer()
 
     def on_mount(self):
@@ -96,7 +96,7 @@ class SprintZeroAnalyzer(App):
 
     def on_directory_tree_file_selected(self, event: DirectoryTree.FileSelected):
         path = event.path
-        if path.suffix != '.sprintzero':
+        if path.suffix != '.falcata':
             return
 
         status = self.query_one("#status", Static)
@@ -207,7 +207,7 @@ class SprintZeroAnalyzer(App):
 
 
 def main():
-    app = SprintZeroAnalyzer()
+    app = FalcataAnalyzer()
     app.run()
 
 

@@ -9,7 +9,7 @@
 
 	let { splits, computedSplits = null, compact = false }: Props = $props();
 
-	// Prefer pre-computed (from .sprintzero meta), fall back to IMU-computed
+	// Prefer pre-computed (from .falcata meta), fall back to IMU-computed
 	const activeSplits = $derived(splits.length > 0 ? splits : (computedSplits ?? []));
 	const isComputed = $derived(splits.length === 0 && (computedSplits?.length ?? 0) > 0);
 </script>

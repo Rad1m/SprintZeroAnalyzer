@@ -202,7 +202,7 @@ def _analyze_sprint(accel_df, distance, date, index):
 
 def analyze_file(path):
     """
-    Analyze a .sprintzero file. Returns a list of result dicts, each containing:
+    Analyze a .falcata file. Returns a list of result dicts, each containing:
       - index, date, distance, fwd_dur, bwd_dur, final_dur, gap, decision
       - plot_data: dict with t, rolling, sprint_level, threshold, sprint_start,
                    fwd_time, bwd_time, final_time (for charting)

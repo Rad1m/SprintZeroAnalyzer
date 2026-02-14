@@ -93,7 +93,7 @@
 </script>
 
 <header class="header">
-	<h1>SprintZero Analyzer</h1>
+	<h1>Falcata Analyzer</h1>
 	<p>Bidirectional sprint end detection</p>
 </header>
 

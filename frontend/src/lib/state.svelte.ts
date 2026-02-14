@@ -10,7 +10,7 @@ export const appState = $state({
 	/** Index of the currently selected sprint */
 	selectedIndex: -1,
 	/** Status bar text */
-	status: 'Drop a .sprintzero file to begin',
+	status: 'Drop a .falcata file to begin',
 	/** Whether WASM is initialized */
 	wasmReady: false,
 	/** Whether a Firestore load is in progress */

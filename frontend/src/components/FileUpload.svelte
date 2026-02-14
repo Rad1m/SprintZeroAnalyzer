@@ -36,7 +36,7 @@
 		onkeydown={(e) => { if (e.key === 'Enter') fileInput.click(); }}
 	>
 		<div class="upload-icon">&#8615;</div>
-		<p>Drop a <strong>.sprintzero</strong> file here or click to browse</p>
+		<p>Drop a <strong>.falcata</strong> file here or click to browse</p>
 	</div>
 {:else}
 	<div
@@ -54,7 +54,7 @@
 <input
 	bind:this={fileInput}
 	type="file"
-	accept=".sprintzero"
+	accept=".falcata"
 	hidden
 	onchange={handleChange}
 />

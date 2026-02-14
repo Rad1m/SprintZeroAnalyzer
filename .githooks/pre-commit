@@ -1,5 +1,5 @@
 #!/bin/bash
-# Pre-commit hook for SprintZeroAnalyzer
+# Pre-commit hook for FalcataAnalyzer
 # Scans staged files for leaked secrets
 
 set -e
