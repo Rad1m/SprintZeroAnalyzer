@@ -1,7 +1,16 @@
 """SprintZero Analyzer — Terminal UI for bidirectional sprint end detection."""
 
+import asyncio
+import logging
 import numpy as np
 from pathlib import Path
+
+logging.basicConfig(
+    filename="analyzer.log",
+    level=logging.DEBUG,
+    format="%(asctime)s %(levelname)s %(message)s",
+)
+log = logging.getLogger(__name__)
 
 from textual.app import App
 from textual.binding import Binding
@@ -9,7 +18,7 @@ from textual.containers import Horizontal, Vertical
 from textual.widgets import Header, Footer, DirectoryTree, DataTable, Static
 from textual_plotext import PlotextPlot
 
-from detection import analyze_file
+from detection import analyze_file, analyze_firestore_sessions
 
 
 class SprintZeroTree(DirectoryTree):
@@ -57,6 +66,7 @@ class SprintZeroAnalyzer(App):
 
     BINDINGS = [
         Binding("q", "quit", "Quit"),
+        Binding("f", "fetch_firestore", "Firestore", priority=True),
     ]
 
     TITLE = "SprintZero Analyzer"
@@ -76,7 +86,7 @@ class SprintZeroAnalyzer(App):
             with Vertical(id="main"):
                 yield DataTable(id="results-table")
                 yield PlotextPlot(id="plot")
-        yield Static("Select a .sprintzero file to analyze", id="status")
+        yield Static("Select a .sprintzero file or press [bold]f[/bold] for Firestore", id="status")
         yield Footer()
 
     def on_mount(self):
@@ -92,20 +102,51 @@ class SprintZeroAnalyzer(App):
         status = self.query_one("#status", Static)
         status.update(f"Analyzing {path.name}...")
 
+        self._load_results(lambda: analyze_file(path), path.name)
+
+    async def action_fetch_firestore(self):
+        log.info("action_fetch_firestore called")
+        status = self.query_one("#status", Static)
+        status.update("Fetching from Firestore...")
+
+        try:
+            from firestore_loader import fetch_sessions
+            log.info("Calling fetch_sessions...")
+            sessions = await asyncio.to_thread(fetch_sessions)
+            log.info(f"Got {len(sessions)} sessions")
+        except Exception as e:
+            log.exception("Firestore fetch failed")
+            status.update(f"Firestore error: {e}")
+            return
+
+        if not sessions:
+            status.update("No sessions found in Firestore")
+            return
+
+        self._load_results(
+            lambda: analyze_firestore_sessions(sessions),
+            f"Firestore ({len(sessions)} sessions)",
+        )
+
+    def _load_results(self, analyze_fn, source_label):
+        log.info(f"_load_results called for {source_label}")
+        status = self.query_one("#status", Static)
         table = self.query_one("#results-table", DataTable)
         table.clear()
-
         self._clear_plot()
 
         try:
-            self._results = analyze_file(path)
+            self._results = analyze_fn()
+            log.info(f"analyze_fn returned {len(self._results)} results")
         except Exception as e:
+            log.exception("analyze_fn failed")
             status.update(f"Error: {e}")
             self._results = []
             return
 
         if not self._results:
-            status.update(f"No sprints with sensor data found in {path.name}")
+            log.info("No results found")
+            status.update(f"No sprints with sensor data found in {source_label}")
             return
 
         for r in self._results:
@@ -120,9 +161,8 @@ class SprintZeroAnalyzer(App):
                 f"{r['final_dur']:.2f}",
             )
 
-        status.update(f"{path.name} — {len(self._results)} sprint(s)")
+        status.update(f"{source_label} — {len(self._results)} sprint(s)")
 
-        # Auto-select first row
         if self._results:
             self._plot_sprint(0)
 

@@ -156,6 +156,50 @@ def decide(forward_time, backward_time, sprint_start):
 # High-level: analyze a file
 # =============================================================================
 
+def _analyze_sprint(accel_df, distance, date, index):
+    """Run bidirectional detection on a single sprint's acceleration DataFrame.
+
+    Returns a result dict or None if insufficient data.
+    """
+    if accel_df is None or len(accel_df) < 100:
+        return None
+
+    t = accel_df['timestamp'].values
+    rolling, rate = compute_rolling_mean(accel_df)
+    sprint_level = find_sprint_level(t, rolling)
+    sprint_start, _ = find_sprint_start(t, rolling)
+
+    min_time = MIN_TIMES.get(distance, 5)
+
+    fwd_time, fwd_thresh = detect_forward(t, rolling, sprint_level, min_sprint_time=min_time)
+    bwd_time, _ = detect_backward(t, rolling, sprint_level)
+    final_time, decision, gap = decide(fwd_time, bwd_time, sprint_start)
+
+    fwd_dur = fwd_time - sprint_start
+    bwd_dur = bwd_time - sprint_start
+    final_dur = final_time - sprint_start
+
+    return {
+        'index': index,
+        'date': date,
+        'distance': distance,
+        'fwd_dur': fwd_dur,
+        'bwd_dur': bwd_dur,
+        'final_dur': final_dur,
+        'gap': gap,
+        'decision': decision,
+        'plot_data': {
+            't': t - sprint_start,
+            'rolling': rolling,
+            'sprint_level': sprint_level,
+            'threshold': fwd_thresh,
+            'fwd_time': fwd_dur,
+            'bwd_time': bwd_dur,
+            'final_time': final_dur,
+        },
+    }
+
+
 def analyze_file(path):
     """
     Analyze a .sprintzero file. Returns a list of result dicts, each containing:
@@ -172,47 +216,34 @@ def analyze_file(path):
     results = []
     for i, sprint_info in enumerate(sprints):
         sprint = sprint_info['sprint']
-        dist = sprint_info['distance']
-        date = sprint_info['date']
-
         loaded = load_sprint_data(sprint)
-        accel_df = loaded.get('accel')
-        if accel_df is None or len(accel_df) < 100:
-            continue
+        r = _analyze_sprint(loaded.get('accel'), sprint_info['distance'], sprint_info['date'], i + 1)
+        if r is not None:
+            results.append(r)
 
-        t = accel_df['timestamp'].values
-        rolling, rate = compute_rolling_mean(accel_df)
-        sprint_level = find_sprint_level(t, rolling)
-        sprint_start, _ = find_sprint_start(t, rolling)
+    return results
 
-        min_time = MIN_TIMES.get(dist, 5)
 
-        fwd_time, fwd_thresh = detect_forward(t, rolling, sprint_level, min_sprint_time=min_time)
-        bwd_time, _ = detect_backward(t, rolling, sprint_level)
-        final_time, decision, gap = decide(fwd_time, bwd_time, sprint_start)
+def analyze_firestore_sessions(sessions):
+    """Analyze sprints from Firestore session documents.
 
-        fwd_dur = fwd_time - sprint_start
-        bwd_dur = bwd_time - sprint_start
-        final_dur = final_time - sprint_start
+    Args:
+        sessions: list of Firestore session dicts (from firestore_loader.fetch_sessions).
 
-        results.append({
-            'index': i + 1,
-            'date': date,
-            'distance': dist,
-            'fwd_dur': fwd_dur,
-            'bwd_dur': bwd_dur,
-            'final_dur': final_dur,
-            'gap': gap,
-            'decision': decision,
-            'plot_data': {
-                't': t - sprint_start,  # relative to sprint start
-                'rolling': rolling,
-                'sprint_level': sprint_level,
-                'threshold': fwd_thresh,
-                'fwd_time': fwd_dur,
-                'bwd_time': bwd_dur,
-                'final_time': final_dur,
-            },
-        })
+    Returns same format as analyze_file().
+    """
+    from firestore_loader import session_to_sprints
+
+    results = []
+    idx = 1
+    for session in sessions:
+        for sprint_info in session_to_sprints(session):
+            if sprint_info['distance'] < 60:
+                continue
+            accel_df = sprint_info['loaded'].get('accel')
+            r = _analyze_sprint(accel_df, sprint_info['distance'], sprint_info['date'], idx)
+            if r is not None:
+                results.append(r)
+                idx += 1
 
     return results

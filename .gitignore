@@ -4,6 +4,12 @@ __pycache__/
 .DS_Store
 *.sprintzero
 
+# Firebase credentials
+service-account.json
+
+# Debug log
+analyzer.log
+
 # Rust
 rust/target/
 rust/pkg/

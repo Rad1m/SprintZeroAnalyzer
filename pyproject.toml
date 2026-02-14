@@ -8,6 +8,7 @@ dependencies = [
     "textual-plotext>=1.0",
     "numpy",
     "pandas",
+    "google-cloud-firestore",
 ]
 
 [project.scripts]
