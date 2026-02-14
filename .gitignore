@@ -6,6 +6,7 @@ __pycache__/
 
 # Firebase credentials
 service-account.json
+GoogleService-Info.plist
 
 # Debug log
 analyzer.log
@@ -13,6 +14,11 @@ analyzer.log
 # Rust
 rust/target/
 rust/pkg/
+
+# Secrets
+.env
+.env.*
+!.env.example
 
 # Frontend
 frontend/node_modules/

@@ -5,8 +5,8 @@ Fetches sprint sessions from the `debug_sessions` Firestore collection
 and decodes CompactCurvePayload binary blobs into acceleration/gyroscope DataFrames.
 
 Authentication:
-  Place your Firebase service account key at `service-account.json` in this directory,
-  or set the GOOGLE_APPLICATION_CREDENTIALS environment variable.
+  Uses Application Default Credentials (run `gcloud auth application-default login`).
+  Project ID is read from the shared Secrets.xcconfig.
 """
 
 import struct
@@ -16,6 +16,22 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from google.cloud import firestore
+
+# Path to shared secrets (sibling repo)
+_XCCONFIG_PATH = Path(__file__).parent / "../SprintZeroProject/Falcata/Falcata/Secrets.xcconfig"
+
+
+def _parse_xcconfig(path: Path) -> dict[str, str]:
+    """Parse key-value pairs from an xcconfig file."""
+    result = {}
+    for line in path.read_text().splitlines():
+        line = line.strip()
+        if not line or line.startswith("//"):
+            continue
+        if "=" in line:
+            key, _, value = line.partition("=")
+            result[key.strip()] = value.strip()
+    return result
 
 
 # =============================================================================
@@ -110,21 +126,19 @@ _db = None
 def get_db() -> firestore.Client:
     """Get or create the Firestore client.
 
-    Looks for credentials in order:
-      1. service-account.json in this directory
-      2. GOOGLE_APPLICATION_CREDENTIALS env var
-      3. Default application credentials (gcloud auth)
+    Reads project ID from Secrets.xcconfig and uses Application Default Credentials.
+    Run `gcloud auth application-default login` to authenticate.
     """
     global _db
     if _db is not None:
         return _db
 
-    sa_path = Path(__file__).parent / "service-account.json"
-    if sa_path.exists():
-        _db = firestore.Client.from_service_account_json(str(sa_path))
-    else:
-        # Falls back to GOOGLE_APPLICATION_CREDENTIALS or default credentials
-        _db = firestore.Client()
+    config = _parse_xcconfig(_XCCONFIG_PATH.resolve())
+    project_id = config.get("FIREBASE_PROJECT_ID")
+    if not project_id:
+        raise RuntimeError(f"FIREBASE_PROJECT_ID not found in {_XCCONFIG_PATH.resolve()}")
+
+    _db = firestore.Client(project=project_id)
     return _db
 
 

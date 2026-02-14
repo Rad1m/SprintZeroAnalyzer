@@ -5,12 +5,11 @@
  * Requires Firestore security rules to allow read on debug_sessions.
  */
 
+import { PUBLIC_FIREBASE_API_KEY, PUBLIC_FIREBASE_PROJECT_ID } from '$env/static/public';
 import { decodeCompactCurvePayload } from './compact-curve.js';
 import type { ParsedSprint, SprintMeta } from './types.js';
 
-const PROJECT_ID = 'gemini-ahimo';
-const API_KEY = '***REMOVED***';
-const BASE_URL = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents`;
+const BASE_URL = `https://firestore.googleapis.com/v1/projects/${PUBLIC_FIREBASE_PROJECT_ID}/databases/(default)/documents`;
 
 // ---------- Firestore REST response types ----------
 
@@ -78,7 +77,7 @@ function getArray(v: FirestoreValue | undefined): FirestoreValue[] {
 // ---------- Public API ----------
 
 export async function fetchSessions(): Promise<ParsedSprint[]> {
-	const url = `${BASE_URL}/debug_sessions?key=${API_KEY}&orderBy=sessionDate desc&pageSize=50`;
+	const url = `${BASE_URL}/debug_sessions?key=${PUBLIC_FIREBASE_API_KEY}&orderBy=sessionDate desc&pageSize=50`;
 
 	const response = await fetch(url);
 	if (!response.ok) {
